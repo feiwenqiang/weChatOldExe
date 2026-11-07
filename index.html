@@ -1,381 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>微信 Windows 历史版本下载</title>
-    <style>
-        /* ============================================================
-           设计语言取自「阿汪」设置页（字节 Arco 明亮风）：
-           token 与阿汪 settings.css 一致；界面做减法，不堆装饰、不发光。
-           ============================================================ */
-        :root {
-            --text-1: #1d2129;
-            --text-2: #4e5969;
-            --text-3: #86909c;
-            --border: #e5e6eb;
-            --border-strong: #d9d9d9;
-            --fill: #f2f3f5;
-            --page: #f7f8fa;
-            --primary: #165dff;
-            --primary-hover: #0e42d2;
-            --primary-soft: rgba(22, 93, 255, 0.08);
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>微信 Windows 安装包归档 · 阿汪</title>
+<style>
+  :root {
+    --bg: #050607;
+    --text: #f5f7fa;
+    --text-2: #a7adb8;
+    --text-3: #6b7280;
+    --accent: #378add;
+    --line: rgba(255, 255, 255, .08);
+    --card: rgba(255, 255, 255, .035);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { height: 100%; }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    padding: 0 0 64px;
+  }
+  /* 阿汪官网同款顶部蓝色光辉 */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 90vh;
+    background: radial-gradient(620px 380px at 50% 0%, rgba(55, 138, 221, .20), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
 
-        body {
-            font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei',
-                system-ui, sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--text-1);
-            background: var(--page);
-            -webkit-font-smoothing: antialiased;
-        }
+  /* ---- 顶部品牌区 ---- */
+  header {
+    text-align: center;
+    padding: 64px 0 14px;
+    animation: rise .9s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .pup { width: 120px; height: auto; display: block; margin: 0 auto 22px; overflow: visible; }
+  .pup .dog { animation: pant 2.1s ease-in-out infinite; transform-origin: 80px 150px; }
+  @keyframes pant {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-3px) scale(1.012); }
+  }
+  .pup .tail { animation: wag .85s ease-in-out infinite alternate; transform-origin: 114px 122px; }
+  @keyframes wag {
+    from { transform: rotate(-11deg); }
+    to { transform: rotate(13deg); }
+  }
+  .pup .tongue { animation: lick 1.6s ease-in-out infinite; transform-origin: 80px 88px; }
+  @keyframes lick {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(.82); }
+  }
+  h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+  .sub {
+    margin-top: 10px;
+    font-size: 14.5px;
+    color: var(--text-2);
+  }
+  .sub b { color: #fff; font-weight: 500; }
 
-        .wrap {
-            max-width: 880px;
-            margin: 0 auto;
-            padding: 44px 24px 60px;
-        }
+  /* ---- 统计条 ---- */
+  .stats {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 28px 0 8px;
+    animation: rise 1s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 132px;
+  }
+  .stat b {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .stat span { font-size: 12.5px; color: var(--text-3); margin-top: 3px; display: block; }
 
-        /* ---------------------------------------------------------- 页头 */
-        .page-head {
-            margin-bottom: 24px;
-        }
+  /* ---- 列表 ---- */
+  .list { margin-top: 26px; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: border-color .2s ease, transform .2s ease, background .2s ease;
+    animation: rise 1s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .card:hover {
+    border-color: rgba(55, 138, 221, .55);
+    background: rgba(55, 138, 221, .06);
+    transform: translateY(-2px);
+  }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .ver { font-size: 19px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+  .meta { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 500;
+    color: #cfe3ff;
+    background: rgba(55, 138, 221, .16);
+    border: 1px solid rgba(55, 138, 221, .4);
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+  .sha {
+    margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text-2);
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    word-break: break-all;
+  }
+  .sha .k { color: var(--text-3); margin-right: 6px; }
+  .actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 9px;
+    padding: 9px 16px;
+    transition: background .18s ease, border-color .18s ease, opacity .18s ease;
+    cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #4a98e8; }
+  .btn.ghost { background: transparent; color: var(--text-2); border: 1px solid rgba(255, 255, 255, .18); }
+  .btn.ghost:hover { color: #fff; border-color: rgba(255, 255, 255, .4); }
 
-        .page-head h1 {
-            font-size: 24px;
-            font-weight: 600;
-            line-height: 1.3;
-            color: var(--text-1);
-            letter-spacing: 0.3px;
-        }
+  .empty, .err { text-align: center; color: var(--text-3); padding: 40px 0; font-size: 14px; }
+  .err { color: #ff8a80; }
 
-        .page-head .sub {
-            margin-top: 6px;
-            font-size: 13px;
-            color: var(--text-3);
-        }
+  footer {
+    position: fixed;
+    bottom: 22px; left: 0; right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-3);
+    z-index: 1;
+  }
 
-        /* ---------------------------------------------------------- 说明块（阿汪 .note） */
-        .note {
-            margin-bottom: 26px;
-            padding: 12px 14px;
-            font-size: 12.5px;
-            line-height: 1.7;
-            color: var(--text-2);
-            background: var(--fill);
-            border-radius: 8px;
-        }
-
-        .note a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .note a:hover {
-            text-decoration: underline;
-        }
-
-        /* ---------------------------------------------------------- 统计卡片（阿汪 .stat-card） */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 28px;
-        }
-
-        .stat {
-            padding: 16px 18px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .stat .k {
-            font-size: 12px;
-            color: var(--text-3);
-        }
-
-        .stat .v {
-            margin-top: 6px;
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-1);
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* ---------------------------------------------------------- 版本卡片（阿汪 .card） */
-        .release {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px 18px;
-            margin-bottom: 14px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-
-        .release:hover {
-            border-color: var(--primary);
-            box-shadow: 0 2px 10px var(--primary-soft);
-        }
-
-        .release .ver {
-            flex: none;
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--text-1);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .release .meta {
-            flex: 1;
-            min-width: 0;
-            font-size: 12.5px;
-            color: var(--text-3);
-        }
-
-        .release .meta .date {
-            color: var(--text-2);
-        }
-
-        .release .sha {
-            margin-top: 3px;
-            font-family: 'Cascadia Mono', Consolas, 'Courier New', monospace;
-            font-size: 11px;
-            color: var(--text-3);
-            word-break: break-all;
-        }
-
-        /* ---------------------------------------------------------- 按钮（阿汪 primary / secondary） */
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            height: 36px;
-            padding: 0 18px;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 13.5px;
-            font-weight: 500;
-            text-decoration: none;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-        }
-
-        .btn-primary {
-            color: #fff;
-            background: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .btn-ghost {
-            color: var(--text-1);
-            background: #fff;
-            border: 1px solid var(--border-strong);
-        }
-
-        .btn-ghost:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* ---------------------------------------------------------- 状态 */
-        .loading {
-            padding: 40px 0;
-            text-align: center;
-            color: var(--text-3);
-            font-size: 14px;
-        }
-
-        .error {
-            padding: 24px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: #f53f3f;
-            font-size: 13px;
-        }
-
-        /* ---------------------------------------------------------- 页脚 */
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            font-size: 12px;
-            line-height: 1.8;
-            color: var(--text-3);
-            text-align: center;
-        }
-
-        .footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 640px) {
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .release {
-                flex-wrap: wrap;
-            }
-
-            .actions {
-                width: 100%;
-            }
-        }
-    </style>
+  @media (prefers-reduced-motion: reduce) {
+    header, .stats, .card { animation: none; }
+    .pup .dog, .pup .tail, .pup .tongue { animation: none; }
+  }
+  @media (max-width: 480px) {
+    .pup { width: 100px; }
+    .stat { min-width: 108px; padding: 12px 16px; }
+  }
+</style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="page-head">
-            <h1>微信 Windows 历史版本</h1>
-            <div class="sub">各版本安装包一键下载 · GitHub Actions 每日自动归档</div>
-        </div>
+  <div class="wrap">
+    <header>
+      <svg class="pup" viewBox="0 0 160 162" role="img" aria-label="阿汪吉祥物">
+        <ellipse cx="80" cy="159" rx="44" ry="5" fill="rgba(255,255,255,.07)" />
+        <g class="dog">
+          <path class="tail" d="M106 108 C126 104 136 92 131 81" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" />
+          <rect x="54" y="132" width="17" height="28" rx="8.5" fill="#fff" />
+          <rect x="89" y="132" width="17" height="28" rx="8.5" fill="#fff" />
+          <ellipse cx="80" cy="118" rx="34" ry="29" fill="#fff" />
+          <ellipse class="ear l" cx="34" cy="60" rx="14" ry="25" fill="#fff" transform="rotate(-18 34 60)" />
+          <ellipse class="ear r" cx="126" cy="60" rx="14" ry="25" fill="#fff" transform="rotate(18 126 60)" />
+          <circle cx="80" cy="62" r="42" fill="#fff" />
+          <path d="M55 96 Q80 107 105 96" fill="none" stroke="#378add" stroke-width="8.5" stroke-linecap="round" />
+          <ellipse cx="50" cy="78" rx="7.5" ry="4.8" fill="rgba(255,140,140,.42)" />
+          <ellipse cx="110" cy="78" rx="7.5" ry="4.8" fill="rgba(255,140,140,.42)" />
+          <circle cx="64" cy="58" r="5.6" fill="#0b0d10" />
+          <circle cx="66" cy="55.8" r="1.8" fill="#fff" />
+          <circle cx="96" cy="58" r="5.6" fill="#0b0d10" />
+          <circle cx="98" cy="55.8" r="1.8" fill="#fff" />
+          <ellipse cx="80" cy="78" rx="7" ry="5.4" fill="#0b0d10" />
+          <path d="M80 84 v3" stroke="#0b0d10" stroke-width="2.4" stroke-linecap="round" />
+          <path d="M80 87 q-7 6 -12 1" fill="none" stroke="#0b0d10" stroke-width="2.4" stroke-linecap="round" />
+          <path d="M80 87 q7 6 12 1" fill="none" stroke="#0b0d10" stroke-width="2.4" stroke-linecap="round" />
+          <ellipse class="tongue" cx="80" cy="96" rx="6.5" ry="8" fill="#ff8a80" />
+        </g>
+      </svg>
+      <h1>微信 Windows 安装包归档</h1>
+      <p class="sub">阿汪出品 · 历史版本留存，<b>自动追踪官网更新</b></p>
+    </header>
 
-        <div class="note">
-            数据来源：微信官网 <a href="https://pc.weixin.qq.com/" target="_blank">pc.weixin.qq.com</a>
-            ；仓库：<a href="https://github.com/feiwenqiang/weChatOldExe" target="_blank">GitHub · feiwenqiang/weChatOldExe</a>。
-            安装包版权归腾讯所有，本页仅作个人存档用途。
-        </div>
-
-        <div class="stats" id="stats" style="display: none;">
-            <div class="stat">
-                <div class="k">版本总数</div>
-                <div class="v" id="total">0</div>
-            </div>
-            <div class="stat">
-                <div class="k">最新版本</div>
-                <div class="v" id="latest">-</div>
-            </div>
-            <div class="stat">
-                <div class="k">最后更新</div>
-                <div class="v" id="updated">-</div>
-            </div>
-        </div>
-
-        <div id="list">
-            <div class="loading" id="loading">正在获取版本列表…</div>
-        </div>
-
-        <div class="footer">
-            安装包版权归腾讯所有 · Powered by GitHub Pages<br>
-            <a href="https://github.com/feiwenqiang/weChatOldExe" target="_blank">在 GitHub 上查看</a>
-        </div>
+    <div class="stats" id="stats"></div>
+    <div class="list" id="list">
+      <div class="empty">正在加载版本列表…</div>
     </div>
+  </div>
 
-    <script>
-        const releasesUrl = './releases.json';
+  <footer>阿汪 · Windows 桌面小工具</footer>
 
-        async function fetchReleases() {
-            try {
-                const response = await fetch(releasesUrl, { cache: 'no-store' });
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status);
-                }
-                const releases = await response.json();
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('stats').style.display = 'grid';
+    function fmtDate(s) {
+      if (!s) return "—";
+      const d = new Date(s);
+      if (isNaN(d)) return "—";
+      return d.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+    }
+    function fmtSize(b) {
+      if (!b) return "";
+      if (b < 1024 * 1024) return (b / 1024).toFixed(0) + " KB";
+      return (b / 1024 / 1024).toFixed(1) + " MB";
+    }
+    function pickExe(assets) {
+      return (assets || []).find((a) => /\.exe$/i.test(a.name)) || null;
+    }
+    function pickSha(body) {
+      if (!body) return null;
+      const m = body.match(/SHA256[:：]\s*([0-9a-fA-F]{64})/);
+      return m ? m[1] : null;
+    }
 
-                if (releases.length === 0) {
-                    document.getElementById('list').innerHTML =
-                        '<div class="error">暂无可用版本（Actions 还没跑过第一次）</div>';
-                    return;
-                }
+    function render(arr) {
+      const sorted = arr
+        .slice()
+        .sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
 
-                document.getElementById('total').textContent = releases.length;
-                const latest = releases[0];
-                document.getElementById('latest').textContent = latest.tag_name.replace('v', '');
-                document.getElementById('updated').textContent =
-                    new Date(latest.published_at).toLocaleDateString('zh-CN');
+      const latest = sorted[0];
+      const lastUpd = fmtDate(latest.published_at);
+      $("stats").innerHTML = [
+        { n: sorted.length, l: "归档版本" },
+        { n: latest.tag_name || "—", l: "最新版本" },
+        { n: lastUpd, l: "最后更新" },
+      ]
+        .map(
+          (s) =>
+            '<div class="stat"><b>' + s.n + "</b><span>" + s.l + "</span></div>"
+        )
+        .join("");
 
-                renderReleases(releases);
-            } catch (error) {
-                document.getElementById('loading').innerHTML =
-                    '<div class="error">加载失败：' + error.message + '</div>';
-                console.error('Error fetching releases:', error);
-            }
+      $("list").innerHTML = sorted
+        .map((r, i) => {
+          const exe = pickExe(r.assets);
+          if (!exe) return "";
+          const sha = pickSha(r.body);
+          const meta =
+            "发布 " + fmtDate(r.published_at) + (exe.size ? " · " + fmtSize(exe.size) : "");
+          const shaHtml = sha
+            ? '<div class="sha"><span class="k">SHA256</span>' + sha + "</div>"
+            : "";
+          const badge = i === 0 ? '<span class="badge">最新</span>' : "";
+          return (
+            '<article class="card">' +
+            '<div class="card-top"><div><div class="ver">' +
+            r.tag_name +
+            '</div><div class="meta">' +
+            meta +
+            "</div></div>" +
+            badge +
+            "</div>" +
+            shaHtml +
+            '<div class="actions">' +
+            '<a class="btn primary" href="' +
+            exe.browser_download_url +
+            '" download>下载安装包</a>' +
+            '<a class="btn ghost" href="' +
+            (r.html_url || "#") +
+            '" target="_blank" rel="noopener">查看详情</a>' +
+            "</div></article>"
+          );
+        })
+        .join("");
+    }
+
+    function showError(msg) {
+      $("list").innerHTML = '<div class="err">' + msg + "</div>";
+    }
+
+    async function load() {
+      try {
+        const res = await fetch("./releases.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const arr = await res.json();
+        if (!Array.isArray(arr) || !arr.length) {
+          $("list").innerHTML = '<div class="empty">暂无归档版本。</div>';
+          return;
         }
+        render(arr);
+      } catch (e) {
+        showError("版本列表加载失败：" + e.message + "（稍后重试或检查 releases.json）");
+      }
+    }
 
-        function renderReleases(releases) {
-            const list = document.getElementById('list');
-            list.innerHTML = '';
-
-            releases.forEach(release => {
-                const version = release.tag_name.replace('v', '');
-                const date = new Date(release.published_at).toLocaleDateString('zh-CN');
-                const body = release.body || '';
-                const sha = extractValue(body, 'Sha256');
-                const exeAsset = release.assets.find(asset => asset.name.endsWith('.exe'));
-
-                const item = document.createElement('div');
-                item.className = 'release';
-
-                item.innerHTML = `
-                    <div class="ver">v${version}</div>
-                    <div class="meta">
-                        <div class="date">发布于 ${date}</div>
-                        ${sha ? `<div class="sha">SHA256: ${sha}</div>` : ''}
-                    </div>
-                    ${exeAsset ? `
-                        <div class="actions">
-                            <a href="${exeAsset.browser_download_url}" class="btn btn-primary">
-                                ⬇ 下载 ${formatBytes(exeAsset.size)}
-                            </a>
-                            <a href="${release.html_url}" target="_blank" class="btn btn-ghost">
-                                查看
-                            </a>
-                        </div>
-                    ` : ''}
-                `;
-
-                list.appendChild(item);
-            });
-        }
-
-        function extractValue(text, key) {
-            const regex = new RegExp(`${key}:\\s*([^\\n]+)`, 'i');
-            const match = text.match(regex);
-            return match ? match[1].trim() : null;
-        }
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-        }
-
-        fetchReleases();
-    </script>
+    load();
+  </script>
 </body>
 </html>
