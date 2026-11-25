@@ -68,7 +68,7 @@
         "state": "uploaded",
         "size": 262761400,
         "digest": "sha256:3e9fc1c0f90a9fb964ba47496f0f52a3ba0c4b839f496912e2a1776421417761",
-        "download_count": 0,
+        "download_count": 1,
         "created_at": "2026-11-24T18:36:17Z",
         "updated_at": "2026-11-24T18:36:29Z",
         "browser_download_url": "https://github.com/feiwenqiang/weChatOldExe/releases/download/v4.2.1.9/WeChatSetup-4.2.1.9.exe"
